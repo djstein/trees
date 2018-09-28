@@ -1,35 +1,51 @@
-def bfs(data, searchVal):
-    stack = [data]
-    while len(stack):
-        print(stack)
+import unittest
+
+
+class Node:
+    def __init__(self, name, data, children=[]):
+        self.name = name
+        self.children = children
+        self.data = data
+
+
+def bfs_search(tree, search):
+    track = []
+    stack = [tree]
+    while stack:
         node = stack.pop(0)
-        print(node)
-        if searchVal in node.get("data"):
-            return node
-        else:
-            stack.extend([val for val in node.get("children").values()])
+        track.extend(node.name)
+        children = node.children
+        if search in node.data:
+            return node, track
+        elif children:
+            stack.extend(children)
 
 
-def test_bfs():
-    node_1 = {"children": {}, "data": "can do"}
-    node_2 = {"children": {}, "data": "wow"}
-    node_0 = {"children": {"1": node_1, "2": node_2}, "data": "hello world"}
+class BFSTest(unittest.TestCase):
+    def setUp(self):
+        self.node_4 = Node(name="4", data="the real input")
+        node_3 = Node(name="3", children=[self.node_4], data="testing here")
+        node_1 = Node(name="1", data="can do")
+        node_2 = Node(name="2", children=[node_3], data="wow")
+        self.node_0 = Node(name="0", children=[node_1, node_2], data="hello world")
+        self.tree = self.node_0
 
-    searchVal = "wow"
-    return_node = bfs(node_0, searchVal)
-    print(return_node)
-    assert node_2 == bfs(node_0, searchVal)
+    def test_find_apex_value(self):
+        search = "hello world"
+        results = bfs_search(self.tree, search)
+        self.assertTrue(results[0].data)
+        self.assertEqual(self.node_0, results[0])
+        track = ["0"]
+        self.assertEqual(track, results[1])
+
+    def test_find_last_value(self):
+        search = "the real input"
+        results = bfs_search(self.tree, search)
+        self.assertTrue(results[0].data)
+        self.assertEqual(self.node_4, results[0])
+        track = ["0", "1", "2", "3", "4"]
+        self.assertEqual(track, results[1])
 
 
-def test_bfs_depth():
-    node_4 = {"children": {}, "data": "the real input"}
-    node_3 = {"children": {"4": node_4}, "data": "testing here"}
-
-    node_1 = {"children": {}, "data": "can do"}
-    node_2 = {"children": {"3": node_3}, "data": "wow"}
-    node_0 = {"children": {"1": node_1, "2": node_2}, "data": "hello world"}
-
-    searchVal = "the real input"
-    return_node = bfs(node_0, searchVal)
-    print(return_node)
-    assert node_4 == return_node
+if __name__ == "__main__":
+    unittest.main()
